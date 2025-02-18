@@ -14,6 +14,14 @@
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
+            <artifactId>caniuse-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>caniuse-neo4j-detection</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
             <artifactId>neo4j-cypher-dsl</artifactId>
         </dependency>
         <dependency>
@@ -54,6 +62,12 @@
         <dependency>
             <groupId>org.scalatestplus</groupId>
             <artifactId>junit-4-13_${scala.binary.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>pl.pragmatists</groupId>
+            <artifactId>JUnitParams</artifactId>
+            <version>1.1.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

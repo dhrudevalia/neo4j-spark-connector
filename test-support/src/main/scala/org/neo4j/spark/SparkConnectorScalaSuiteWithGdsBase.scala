@@ -18,8 +18,6 @@ package org.neo4j.spark
 
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
-import org.hamcrest.Matchers
-import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assume
 import org.junit.Before
@@ -28,13 +26,11 @@ import org.junit.Rule
 import org.junit.rules.TestName
 import org.neo4j.Closeables.use
 import org.neo4j.Neo4jContainerExtension
+import org.neo4j.caniuse.Neo4j
+import org.neo4j.caniuse.Neo4jDetector
 import org.neo4j.driver._
-import org.neo4j.driver.summary.ResultSummary
-import org.neo4j.spark
-import org.neo4j.spark.SparkConnectorScalaSuiteWithApocIT.driver
 
 import java.util.TimeZone
-import java.util.concurrent.TimeUnit
 
 import scala.annotation.meta.getter
 
@@ -50,6 +46,7 @@ object SparkConnectorScalaSuiteWithGdsBase {
   var conf: SparkConf = _
   var ss: SparkSession = _
   var driver: Driver = _
+  var neo4j: Neo4j = _
 
   @BeforeClass
   def setUpContainer(): Unit = {
@@ -66,9 +63,7 @@ object SparkConnectorScalaSuiteWithGdsBase {
         .set("spark.driver.host", "127.0.0.1")
       ss = SparkSession.builder.config(conf).getOrCreate()
       driver = GraphDatabase.driver(server.getBoltUrl, AuthTokens.none())
-      session()
-        .readTransaction((tx: Transaction) => tx.run("RETURN 1").consume())
-      ()
+      neo4j = Neo4jDetector.INSTANCE.detect(driver)
     }
   }
 
