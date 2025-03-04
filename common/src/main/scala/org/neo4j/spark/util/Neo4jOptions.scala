@@ -326,12 +326,12 @@ class Neo4jOptions(private val options: java.util.Map[String, String]) extends S
     getParameter(STREAMING_QUERY_OFFSET)
   )
 
-  def toNeo4jTransactionConfig(): TransactionConfig = {
-    val timeout = getParameter(TRANSACTION_TIMEOUT_MSECS, DEFAULT_TRANSACTION_TIMEOUT_MSECS.toString).toInt
+  def toNeo4jTransactionConfig: TransactionConfig = {
+    val timeout = getParameter(TRANSACTION_TIMEOUT_MSECS, DEFAULT_TRANSACTION_TIMEOUT)
 
     val builder = TransactionConfig.builder()
-    if (timeout > 0) {
-      val duration = Duration.ofMillis(timeout)
+    if (timeout != null) {
+      val duration = Duration.ofMillis(timeout.toInt)
       builder.withTimeout(duration)
     }
 
@@ -611,7 +611,7 @@ object Neo4jOptions {
   val DEFAULT_BATCH_SIZE = 5000
   val DEFAULT_TRANSACTION_RETRIES = 3
   val DEFAULT_TRANSACTION_RETRY_TIMEOUT = 0
-  val DEFAULT_TRANSACTION_TIMEOUT_MSECS = 0
+  val DEFAULT_TRANSACTION_TIMEOUT = null
   val DEFAULT_RELATIONSHIP_NODES_MAP = false
   val DEFAULT_SCHEMA_STRATEGY = SchemaStrategy.SAMPLE
   val DEFAULT_SCHEMA_OPTIMIZATION_NODE_KEY = ConstraintsOptimizationType.NONE
