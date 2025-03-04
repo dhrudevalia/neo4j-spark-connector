@@ -69,7 +69,7 @@ class SchemaService(
 
   private val session: Session = driverCache.getOrCreate().session(options.session.toNeo4jSession())
 
-  private val sessionTransactionConfig = options.toNeo4jTransactionConfig()
+  private val sessionTransactionConfig = options.toNeo4jTransactionConfig
 
   private val cypherToSparkTypeConverter = CypherToSparkTypeConverter()
 

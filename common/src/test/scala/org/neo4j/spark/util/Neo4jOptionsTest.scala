@@ -254,7 +254,7 @@ class Neo4jOptionsTest {
     val neo4jOptions = new Neo4jOptions(rawOptions)
 
     // When it converts to TransactionConfig
-    val transactionConfig = neo4jOptions.toNeo4jTransactionConfig()
+    val transactionConfig = neo4jOptions.toNeo4jTransactionConfig
 
     // Then it has the correct duration
     assertEquals(Duration.ofMillis(1000), transactionConfig.timeout())
@@ -269,7 +269,7 @@ class Neo4jOptionsTest {
     val neo4jOptions = new Neo4jOptions(rawOptions)
 
     // When it converts to TransactionConfig
-    val transactionConfig = neo4jOptions.toNeo4jTransactionConfig()
+    val transactionConfig = neo4jOptions.toNeo4jTransactionConfig
 
     // Then it is not set
     assertNull(transactionConfig.timeout())
