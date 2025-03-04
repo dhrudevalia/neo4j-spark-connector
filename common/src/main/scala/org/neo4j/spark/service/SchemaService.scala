@@ -69,6 +69,8 @@ class SchemaService(
 
   private val session: Session = driverCache.getOrCreate().session(options.session.toNeo4jSession())
 
+  private val sessionTransactionConfig = options.toNeo4jTransactionConfig()
+
   private val cypherToSparkTypeConverter = CypherToSparkTypeConverter()
 
   private val sparkToCypherTypeConverter = SparkToCypherTypeConverter()
@@ -927,26 +929,29 @@ class SchemaService(
       Collections.emptyList()
     } else {
       session
-        .writeTransaction(new TransactionWork[util.List[java.util.Map[String, AnyRef]]] {
-          override def execute(transaction: Transaction): util.List[util.Map[String, AnyRef]] = {
-            others.size match {
-              case 1 => transaction.run(others.head).list()
-                  .asScala
-                  .map(_.asMap())
-                  .asJava
-              case _ => {
-                others
-                  .slice(0, queries.size - 1)
-                  .foreach(transaction.run)
-                val result = transaction.run(others.last).list()
-                  .asScala
-                  .map(_.asMap())
-                  .asJava
-                result
+        .writeTransaction(
+          new TransactionWork[util.List[java.util.Map[String, AnyRef]]] {
+            override def execute(transaction: Transaction): util.List[util.Map[String, AnyRef]] = {
+              others.size match {
+                case 1 => transaction.run(others.head).list()
+                    .asScala
+                    .map(_.asMap())
+                    .asJava
+                case _ => {
+                  others
+                    .slice(0, queries.size - 1)
+                    .foreach(transaction.run)
+                  val result = transaction.run(others.last).list()
+                    .asScala
+                    .map(_.asMap())
+                    .asJava
+                  result
+                }
               }
             }
-          }
-        })
+          },
+          sessionTransactionConfig
+        )
     }
   }
 
