@@ -85,7 +85,7 @@ abstract class BaseDataWriter(
         session = driverCache.getOrCreate().session(options.session.toNeo4jSession())
       }
       if (transaction == null || !transaction.isOpen) {
-        transaction = session.beginTransaction()
+        transaction = session.beginTransaction(options.toNeo4jTransactionConfig())
       }
       log.info(
         s"""Writing a batch of ${batch.size()} elements to Neo4j,
