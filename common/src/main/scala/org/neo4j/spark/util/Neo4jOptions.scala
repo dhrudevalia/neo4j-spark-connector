@@ -325,6 +325,19 @@ class Neo4jOptions(private val options: java.util.Map[String, String]) extends S
     StreamingFrom.withCaseInsensitiveName(getParameter(STREAMING_FROM, DEFAULT_STREAMING_FROM.toString)),
     getParameter(STREAMING_QUERY_OFFSET)
   )
+
+  def toNeo4jTransactionConfig: TransactionConfig = {
+    val timeout = getParameter(TRANSACTION_TIMEOUT_MSECS, DEFAULT_TRANSACTION_TIMEOUT)
+
+    val builder = TransactionConfig.builder()
+    if (timeout != null) {
+      val duration = Duration.ofMillis(timeout.toInt)
+      builder.withTimeout(duration)
+    }
+
+    builder.build()
+  }
+
 }
 
 case class Neo4jStreamingOptions(
@@ -518,6 +531,7 @@ object Neo4jOptions {
   val CONNECTION_LIVENESS_CHECK_TIMEOUT_MSECS = "connection.liveness.timeout.msecs"
   val CONNECTION_ACQUISITION_TIMEOUT_MSECS = "connection.acquisition.timeout.msecs"
   val CONNECTION_TIMEOUT_MSECS = "connection.timeout.msecs"
+  val TRANSACTION_TIMEOUT_MSECS = "db.transaction.timeout"
 
   // session options
   val DATABASE = "database"
@@ -597,6 +611,7 @@ object Neo4jOptions {
   val DEFAULT_BATCH_SIZE = 5000
   val DEFAULT_TRANSACTION_RETRIES = 3
   val DEFAULT_TRANSACTION_RETRY_TIMEOUT = 0
+  val DEFAULT_TRANSACTION_TIMEOUT = null
   val DEFAULT_RELATIONSHIP_NODES_MAP = false
   val DEFAULT_SCHEMA_STRATEGY = SchemaStrategy.SAMPLE
   val DEFAULT_SCHEMA_OPTIMIZATION_NODE_KEY = ConstraintsOptimizationType.NONE

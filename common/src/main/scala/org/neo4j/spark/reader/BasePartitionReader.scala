@@ -86,7 +86,7 @@ abstract class BasePartitionReader(
     try {
       if (result == null) {
         session = driverCache.getOrCreate().session(options.session.toNeo4jSession())
-        transaction = session.beginTransaction()
+        transaction = session.beginTransaction(options.toNeo4jTransactionConfig)
 
         val queryText = query()
         val queryParams = queryParameters

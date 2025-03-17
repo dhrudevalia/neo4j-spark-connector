@@ -22,6 +22,7 @@ import org.neo4j.driver.AccessMode
 import org.neo4j.driver.net.ServerAddress
 
 import java.net.URI
+import java.time.Duration
 
 import scala.annotation.meta.getter
 import scala.collection.JavaConverters._
@@ -241,5 +242,36 @@ class Neo4jOptionsTest {
       ).asJava,
       neo4jOptions.gdsMetadata.parameters
     )
+  }
+
+  @Test
+  def testTransactionTimeout(): Unit = {
+    // Given a Neo4j options with transaction timeout set
+    val rawOptions = new java.util.HashMap[String, String]()
+    rawOptions.put(Neo4jOptions.URL, "neo4j://localhost,neo4j://foo.bar,neo4j://foo.bar.baz:7783")
+    rawOptions.put("db.transaction.timeout", "1000")
+
+    val neo4jOptions = new Neo4jOptions(rawOptions)
+
+    // When it converts to TransactionConfig
+    val transactionConfig = neo4jOptions.toNeo4jTransactionConfig
+
+    // Then it has the correct duration
+    assertEquals(Duration.ofMillis(1000), transactionConfig.timeout())
+  }
+
+  @Test
+  def testDefaultTransactionTimeout(): Unit = {
+    // Given a Neo4j options with no explicit transaction timeout set
+    val rawOptions = new java.util.HashMap[String, String]()
+    rawOptions.put(Neo4jOptions.URL, "neo4j://localhost,neo4j://foo.bar,neo4j://foo.bar.baz:7783")
+
+    val neo4jOptions = new Neo4jOptions(rawOptions)
+
+    // When it converts to TransactionConfig
+    val transactionConfig = neo4jOptions.toNeo4jTransactionConfig
+
+    // Then it is not set
+    assertNull(transactionConfig.timeout())
   }
 }
