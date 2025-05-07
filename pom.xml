@@ -11,12 +11,12 @@
     <url>https://github.com/neo4j/neo4j-spark-connector</url>
     <organization>
         <name>Neo4j, Inc.</name>
-        <url>http://neo4j.com/</url>
+        <url>https://neo4j.com/</url>
     </organization>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>manual</distribution>
         </license>
     </licenses>
@@ -64,11 +64,11 @@
         <netty-bom.version>4.1.119.Final</netty-bom.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala-maven-plugin.version>4.9.5</scala-maven-plugin.version>
-        <!-- This is empty because we use it for the deploy process -->
-        <scala.binary.version/>
+        <scala.binary.version>2.12</scala.binary.version>
+        <scala.version>2.12.20</scala.version>
         <slf4j-api.version>2.0.17</slf4j-api.version>
         <sortpom-maven-plugin.version>4.0.0</sortpom-maven-plugin.version>
-        <spark.version>3.5.2</spark.version>
+        <spark.version>3.5.5</spark.version>
         <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
         <surefire.jvm.args/>
         <testcontainers.version>1.21.0</testcontainers.version>
@@ -525,24 +525,11 @@
         </plugins>
     </build>
     <profiles>
-        <!-- scala profiles -->
-        <profile>
-            <id>scala-2.12</id>
-            <activation>
-                <property>
-                    <name>scala-2.12</name>
-                </property>
-            </activation>
-            <properties>
-                <scala.binary.version>2.12</scala.binary.version>
-                <scala.version>2.12.20</scala.version>
-            </properties>
-        </profile>
         <profile>
             <id>scala-2.13</id>
             <activation>
                 <property>
-                    <name>!scala-2.12</name>
+                    <name>scala-2.13</name>
                 </property>
             </activation>
             <properties>
