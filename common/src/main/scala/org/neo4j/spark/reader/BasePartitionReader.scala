@@ -91,7 +91,7 @@ abstract class BasePartitionReader(
     try {
       nextHandler()
     } catch {
-      case t: Throwable => {
+      case t: Throwable =>
         if (options.transactionSettings.shouldFailOn(t)) {
           error = true
           logError("Error while invoking next due to explicitly configured failure condition:", t)
@@ -107,7 +107,7 @@ abstract class BasePartitionReader(
 
           close()
           result = null // Reset result to force new query
-          
+
           // Wait before retry
           LockSupport.parkNanos(Duration.ofMillis(options.transactionSettings.retryTimeout).toNanos)
           nextHandler()
@@ -116,7 +116,6 @@ abstract class BasePartitionReader(
           logError("Error while invoking next:", t)
           throw new IOException(t)
         }
-      }
     }
 
   private def nextHandler(): Boolean = {
