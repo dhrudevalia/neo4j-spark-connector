@@ -38,10 +38,10 @@ import org.neo4j.spark.util.Neo4jUtil
 import org.neo4j.spark.util.QueryType
 
 import java.io.IOException
+import java.time.Duration
 import java.util
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.locks.LockSupport
-import java.time.Duration
 
 import scala.collection.JavaConverters._
 
