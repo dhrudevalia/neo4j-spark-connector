@@ -40,7 +40,7 @@ import org.neo4j.spark.util.QueryType
 import java.io.IOException
 import java.time.Duration
 import java.util
-import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.LockSupport
 
 import scala.collection.JavaConverters._
@@ -84,7 +84,7 @@ abstract class BasePartitionReader(
   @volatile
   private var error: Boolean = false
 
-  private val retries = new CountDownLatch(options.transactionSettings.retries)
+  private val retries = new AtomicInteger(options.transactionSettings.retries)
 
   @throws(classOf[IOException])
   def next: Boolean =
@@ -98,10 +98,10 @@ abstract class BasePartitionReader(
           throw new IOException(t)
         }
 
-        if (Neo4jUtil.isRetryableException(t) && retries.getCount > 0) {
-          retries.countDown()
+        if (Neo4jUtil.isRetryableException(t) && retries.get() > 0) {
+          val currentRetry = retries.decrementAndGet
           logInfo(
-            s"encountered a transient exception while reading, retrying ${options.transactionSettings.retries - retries.getCount} time",
+            s"encountered a transient exception while reading, retrying ${options.transactionSettings.retries - currentRetry} time",
             t
           )
 
