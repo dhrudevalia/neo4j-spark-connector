@@ -101,7 +101,7 @@ abstract class BasePartitionReader(
         if (Neo4jUtil.isRetryableException(t) && retries.get() > 0) {
           val currentRetry = retries.decrementAndGet
           logInfo(
-            s"encountered a transient exception while reading, retrying ${options.transactionSettings.retries - currentRetry} time",
+            s"encountered a transient exception while reading, retrying ${options.transactionSettings.retries - currentRetry} time(s)",
             t
           )
 
@@ -110,7 +110,7 @@ abstract class BasePartitionReader(
 
           // Wait before retry
           LockSupport.parkNanos(Duration.ofMillis(options.transactionSettings.retryTimeout).toNanos)
-          nextHandler()
+          next
         } else {
           error = true
           logError("Error while invoking next:", t)
