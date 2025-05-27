@@ -38,7 +38,10 @@ import org.neo4j.spark.util.Neo4jUtil
 import org.neo4j.spark.util.QueryType
 
 import java.io.IOException
+import java.time.Duration
 import java.util
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.LockSupport
 
 import scala.collection.JavaConverters._
 
@@ -81,36 +84,62 @@ abstract class BasePartitionReader(
   @volatile
   private var error: Boolean = false
 
+  private val retries = new AtomicInteger(options.transactionSettings.retries)
+
   @throws(classOf[IOException])
   def next: Boolean =
     try {
-      if (result == null) {
-        session = driverCache.getOrCreate().session(options.session.toNeo4jSession())
-        transaction = session.beginTransaction(options.toNeo4jTransactionConfig)
-
-        val queryText = query()
-        val queryParams = queryParameters
-
-        logInfo(s"Running the following query on Neo4j: $queryText")
-        logDebug(s"with parameters $queryParams")
-
-        result = transaction.run(queryText, Values.value(queryParams))
-          .asScala
-      }
-
-      if (result.hasNext) {
-        nextRow = mappingService.convert(result.next(), schema)
-        true
-      } else {
-        false
-      }
+      nextHandler()
     } catch {
-      case t: Throwable => {
-        error = true
-        logInfo("Error while invoking next:", t)
-        throw new IOException(t)
-      }
+      case t: Throwable =>
+        if (options.transactionSettings.shouldFailOn(t)) {
+          error = true
+          logError("Error while invoking next due to explicitly configured failure condition:", t)
+          throw new IOException(t)
+        }
+
+        if (Neo4jUtil.isRetryableException(t) && retries.get() > 0) {
+          val currentRetry = retries.decrementAndGet
+          logInfo(
+            s"encountered a transient exception while reading, retrying ${options.transactionSettings.retries - currentRetry} time(s)",
+            t
+          )
+
+          close()
+          result = null // Reset result to force new query
+
+          // Wait before retry
+          LockSupport.parkNanos(Duration.ofMillis(options.transactionSettings.retryTimeout).toNanos)
+          next
+        } else {
+          error = true
+          logError("Error while invoking next:", t)
+          throw new IOException(t)
+        }
     }
+
+  private def nextHandler(): Boolean = {
+    if (result == null) {
+      session = driverCache.getOrCreate().session(options.session.toNeo4jSession())
+      transaction = session.beginTransaction(options.toNeo4jTransactionConfig)
+
+      val queryText = query()
+      val queryParams = queryParameters
+
+      logInfo(s"Running the following query on Neo4j: $queryText")
+      logDebug(s"with parameters $queryParams")
+
+      result = transaction.run(queryText, Values.value(queryParams))
+        .asScala
+    }
+
+    if (result.hasNext) {
+      nextRow = mappingService.convert(result.next(), schema)
+      true
+    } else {
+      false
+    }
+  }
 
   def get: InternalRow = nextRow
 

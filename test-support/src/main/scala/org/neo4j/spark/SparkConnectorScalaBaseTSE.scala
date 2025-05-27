@@ -21,7 +21,7 @@ import org.apache.spark.sql.SparkSession
 import org.junit._
 import org.junit.rules.TestName
 import org.neo4j.Closeables.use
-import org.scalatestplus.junit.JUnitSuite
+import org.scalatestplus.junit.AssertionsForJUnit
 
 import scala.annotation.meta.getter
 
@@ -46,7 +46,7 @@ object SparkConnectorScalaBaseTSE {
 
 }
 
-class SparkConnectorScalaBaseTSE extends JUnitSuite {
+class SparkConnectorScalaBaseTSE extends AssertionsForJUnit {
 
   val conf: SparkConf = SparkConnectorScalaSuiteIT.conf
   val ss: SparkSession = SparkConnectorScalaSuiteIT.ss
