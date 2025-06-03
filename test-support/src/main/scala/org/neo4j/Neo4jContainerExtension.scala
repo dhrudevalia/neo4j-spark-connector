@@ -126,9 +126,6 @@ class Neo4jContainerExtension(imageName: String =
       )
     }
     addEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes")
-    addEnv("NEO4J_internal_dbms_cypher_enable__experimental__versions", "true")
-    addEnv("NEO4J_internal_dbms_cypher_enable__experimental__versions", "CYPHER_25")
-    addEnv("NEO4J_internal_cypher_enable__extra__semantic__features", "MatchModes")
 
     super.start()
 

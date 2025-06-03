@@ -32,10 +32,13 @@ import java.util.TimeZone
 
 object SparkConnectorScalaSuiteIT {
 
-  val server: Neo4jContainerExtension = new Neo4jContainerExtension()
+  val server: Neo4jContainerExtension = new Neo4jContainerExtension("neo4j:2025.06.0-30713-enterprise-debian")
     .withNeo4jConfig("dbms.security.auth_enabled", "false")
     .withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes")
     .withEnv("NEO4J_db_temporal_timezone", TimeZone.getDefault.getID)
+    .withEnv("NEO4J_internal_dbms_cypher_enable__experimental__versions", "true")
+    .withEnv("NEO4J_internal_db_query_default__language", "CYPHER_25")
+    .withEnv("NEO4J_internal_cypher_enable__extra__semantic__features", "MatchModes")
     .withDatabases(Seq("db1", "db2"))
 
   var conf: SparkConf = _
